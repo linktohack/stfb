@@ -1,0 +1,26 @@
+{
+  "name": "stfb",
+  "version": "1.0.0",
+  "description": "Super Tiny Foundation for BABYLON, enables ECS principle on BABYLON scenes",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "doc": "typedoc --exclude '**/node_modules/**' src/index.ts src/stfb.ts",
+    "build": "tsc",
+    "bundle": "webpack --mode=production --devtool source-map",
+    "publish": "jq < package.json '.main = \"./index.js\" | .types = \"./index.d.ts\"' > dist/package.json && pushd dist && npm pack && popd"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^17.0.34",
+    "ammojs-typed": "^1.0.6",
+    "babylonjs": "^5.6.1",
+    "ts-loader": "^9.3.0",
+    "typedoc": "^0.22.15",
+    "webpack": "^5.72.1",
+    "webpack-cli": "^4.9.2"
+  }
+}

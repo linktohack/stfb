@@ -4,13 +4,11 @@
  */
 // Physics
 import * as BABYLON from 'babylonjs';
-import Ammo from 'ammojs-typed';
 /**
  * Compnent: Enable physics for `scene'
  * @param scene
  */
 export async function enablePhysics(scene) {
-    await Ammo();
     scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), new BABYLON.AmmoJSPlugin());
 }
 /**

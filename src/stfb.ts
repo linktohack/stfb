@@ -4,22 +4,27 @@ declare global {
    */
   interface Window {
     STFB: {
-      core: any;
-      stdlib: any;
-      inject: (into: any) => void;
-    };
+      // how to declare all the export here
+    } & ((into?: any) => void);
   }
 }
 
 import * as core from "./core";
 import * as stdlib from "./stdlib";
 
-window.STFB = {
-  core,
-  stdlib,
-  inject(into: any) {
+((window: Window) => {
+  const savedSTFB = window.STFB;
+
+  window.STFB = ((into?: any) => {
     into = into || window;
     Object.assign(into, core);
     Object.assign(into, stdlib);
-  },
-};
+
+    if (savedSTFB) {
+      window.STFB = savedSTFB;
+    }
+  }) as any;
+
+  Object.assign(window.STFB, core);
+  Object.assign(window.STFB, stdlib);
+})(window);

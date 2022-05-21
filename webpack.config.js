@@ -23,4 +23,9 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
+  externals: {
+    'babylonjs': 'BABYLON',
+    'cannon': 'CANNON',
+    'ammojs': 'Ammo'
+  }
 };

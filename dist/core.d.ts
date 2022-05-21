@@ -7,6 +7,7 @@
  *   enhances, modifies its behavior in some ways
  * Entity: Node, Mesh, Feature etc..
  */
+import * as BABYLON from 'babylonjs';
 /**
  * Bootstrap a new system with a `registry'
  *

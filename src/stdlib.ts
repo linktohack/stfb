@@ -13,7 +13,6 @@ import Ammo from 'ammojs-typed'
  * @param scene
  */
 export async function enablePhysics(scene: BABYLON.Scene) {
-  await Ammo();
   scene.enablePhysics(
     new BABYLON.Vector3(0, -9.81, 0),
     new BABYLON.AmmoJSPlugin()

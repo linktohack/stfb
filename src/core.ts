@@ -8,7 +8,7 @@
  * Entity: Node, Mesh, Feature etc..
  */
 
-import * as BABYBLON from 'babylonjs';
+import * as BABYLON from 'babylonjs';
 
 /**
  * Bootstrap a new system with a `registry'
@@ -85,7 +85,7 @@ export async function Scene<T extends BABYLON.Node>(
   for (const component of components || []) {
     if (Array.isArray(component)) {
       const [fn, ...args] = component;
-      fn(scene, ...args);
+      await fn(scene, ...args);
     } else {
       await component(scene);
     }
@@ -143,7 +143,7 @@ export function Entity<T>(
     for (const component of components || []) {
       if (Array.isArray(component)) {
         const [fn, ...args] = component;
-        fn(el, ...args);
+        await fn(el, ...args);
       } else {
         await component(el);
       }

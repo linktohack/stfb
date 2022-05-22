@@ -190,6 +190,7 @@ export async function onPickedUp(el, findElById, cb) {
         }
     });
 }
+// HMR: Replace Entity
 /**
  * Replace an entity with a new `fn`, while preseve the `components` and `children`
  *

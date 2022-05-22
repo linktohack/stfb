@@ -27,19 +27,32 @@ export function System(registry, opt?: { noUniqueCheck: boolean }) {
   const noUniqueCheck = opt?.noUniqueCheck ?? false;
   return {
     setElForId(el, id) {
-      if (registry[id] && registry[id] !== el) {
-        if (noUniqueCheck) {
-          console.trace(
-            `Id \`${id}' is already reserved for \'${registry[id]}'`
-          );
-          registry[id] = el;
+      if (el === undefined) {
+        if (!registry[id]) {
+          if (noUniqueCheck) {
+            console.trace(`Try to unset an id \`${id}''`);
+            delete registry[id];
+          } else {
+            throw new Error(`Try to unset an id \`${id}''`);
+          }
         } else {
-          throw new Error(
-            `Id \`${id}' is already reserved for \'${registry[id]}'`
-          );
+          delete registry[id];
         }
-      } else if (el === undefined) {
-        delete registry[id];
+      } else if (registry[id]) {
+        if (el !== registry[id]) {
+          if (noUniqueCheck) {
+            console.trace(
+              `Id \`${id}' is already reserved for \'${registry[id]}'`
+            );
+            registry[id] = el;
+          } else {
+            throw new Error(
+              `Id \`${id}' is already reserved for \'${registry[id]}'`
+            );
+          }
+        } else {
+          registry[id] = el;
+        }
       } else {
         registry[id] = el;
       }

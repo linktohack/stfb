@@ -1,5 +1,5 @@
 /**
- * @packageDocumentation Super Tiny Foundation, stdlib
+ * @packageDocumentation Super Tiny Foundation for BABYLON, stdlib
  * @author Quang-Linh LE
  */
 import * as BABYLON from "babylonjs";
@@ -71,8 +71,10 @@ export declare function onPickedDown(el: BABYLON.Mesh, setElForId: Function, cb:
  */
 export declare function onPickedUp(el: BABYLON.Mesh, findElById: Function, cb: Function): Promise<void>;
 /**
- * Create accept handler that replaces current entity with a new `fn`, while preseve the `components` and `children`
+ * Replace an entity with a new `fn`, while preseve the `components` and `children`
+ *
+ * Only work with HMR enabled (or `module.hot` is truthy)
  * @param el
  * @returns
  */
-export declare function hotReplace(el: IEntity, newElFn: (scene: BABYLON.Scene) => IEntity | Promise<IEntity>): () => void;
+export declare function replaceEntity(el: IEntity, newElFn: (scene: BABYLON.Scene) => IEntity | Promise<IEntity>): Promise<void>;

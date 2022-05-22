@@ -3,9 +3,10 @@
  * @author Quang-Linh LE
  *
  * System: Global state
- * Components: Functions that take `entity' as its first argument,
+ * Component: Function that takes `entity' as its first argument,
  *   enhances, modifies its behavior in some ways
- * Entity: Node, Mesh, Feature etc..
+ * Entity: Function that take `scene` as its sole argument,
+ *   returns Node, Mesh, Feature etc... that can be enhanced by Component
  */
 
 import * as BABYLON from "babylonjs";
@@ -28,6 +29,9 @@ export function System(registry, opt?: { noUniqueCheck: boolean }) {
     setElForId(el, id) {
       if (registry[id] && registry[id] !== el) {
         if (noUniqueCheck) {
+          console.trace(
+            `Id \`${id}' is already reserved for \'${registry[id]}'`
+          );
           registry[id] = el;
         } else {
           throw new Error(
@@ -61,7 +65,7 @@ export async function Scene(
     components?: (
       | ((scene: BABYLON.Scene) => void | Promise<void>)
       | ((scene: BABYLON.Scene, ...args) => void | Promise<void>)
-      | [Function, ...any]
+      | [(scene: BABYLON.Scene, ...args) => void | Promise<void>, ...any]
     )[];
     children?: ((scene: BABYLON.Scene) => Promise<IEntity>)[];
   }
@@ -131,7 +135,7 @@ export async function Scene(
  * Entity is basically a Mesh or a Feature that its behavior can be modified by some functions (Components)
  * and may have children that are also Entities
  * @param fn
- * @param param1
+ * @param opt  { components, children }
  * @returns
  */
 export function Entity(
@@ -172,7 +176,7 @@ export function Entity(
     }
 
     if (module.hot) {
-      (el as any).__hot__data__ = { fn, components, children }; // TODO: arguments is not working here
+      (el as any).__hot__data__ = { fn, components, children }; // TODO(QL): arguments is not working here
     }
 
     return el;

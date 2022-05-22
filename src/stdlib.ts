@@ -1,12 +1,11 @@
 /**
- * @packageDocumentation Super Tiny Foundation, stdlib
+ * @packageDocumentation Super Tiny Foundation for BABYLON, stdlib
  * @author Quang-Linh LE
  */
 
 // Physics
 
 import * as BABYLON from "babylonjs";
-import Ammo from "ammojs-typed";
 import { Entity, IEntity } from "./core";
 
 /**
@@ -273,31 +272,39 @@ export async function onPickedUp(
   });
 }
 
+// HMR: Replace Entity
+
 /**
- * Create accept handler that replaces current entity with a new `fn`, while preseve the `components` and `children`
+ * Replace an entity with a new `fn`, while preseve the `components` and `children`
+ *
+ * Only work with HMR enabled (or `module.hot` is truthy)
  * @param el
  * @returns
  */
-export function hotReplace(
+export async function replaceEntity(
   el: IEntity,
   newElFn: (scene: BABYLON.Scene) => IEntity | Promise<IEntity>
 ) {
-  return () => {
-    let scene: BABYLON.Scene;
-    if (el instanceof BABYLON.WebXRDefaultExperience) {
-      scene = el.baseExperience.camera.getScene();
-    } else {
-      scene = el.getScene();
-    }
-    const parent = (el as any).parent;
-    const { fn: _, components, children } = (el as any).__hot__data__;
-    el.dispose();
-    (async () => {
-      const newEl = await Entity(newElFn, {
-        components,
-        children,
-      })(scene);
-      (newEl as any).parent = parent;
-    })();
-  };
+  if (!el) {
+    console.trace("replaceEntity", "Entity not found");
+    return;
+  }
+  let scene: BABYLON.Scene;
+  if (el instanceof BABYLON.WebXRDefaultExperience) {
+    scene = el.baseExperience.camera.getScene();
+  } else {
+    scene = el.getScene();
+  }
+  const parent = (el as any).parent; // If it exists
+  const { fn: _, components, children } = (el as any).__hot__data__;
+  if ((el as BABYLON.Mesh).physicsImpostor) {
+    (el as BABYLON.Mesh).physicsImpostor.dispose();
+  }
+  el.dispose();
+
+  const newEl = await Entity(newElFn, {
+    components,
+    children,
+  })(scene);
+  (newEl as any).parent = parent;
 }

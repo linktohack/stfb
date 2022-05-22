@@ -3,9 +3,10 @@
  * @author Quang-Linh LE
  *
  * System: Global state
- * Components: Functions that take `entity' as its first argument,
+ * Component: Function that takes `entity' as its first argument,
  *   enhances, modifies its behavior in some ways
- * Entity: Node, Mesh, Feature etc..
+ * Entity: Function that take `scene` as its sole argument,
+ *   returns Node, Mesh, Feature etc... that can be enhanced by Component
  */
 import * as BABYLON from "babylonjs";
 /**
@@ -21,6 +22,7 @@ export function System(registry, opt) {
         setElForId(el, id) {
             if (registry[id] && registry[id] !== el) {
                 if (noUniqueCheck) {
+                    console.trace(`Id \`${id}' is already reserved for \'${registry[id]}'`);
                     registry[id] = el;
                 }
                 else {
@@ -96,7 +98,7 @@ export async function Scene(sceneOrCanvas, { components, children, }) {
  * Entity is basically a Mesh or a Feature that its behavior can be modified by some functions (Components)
  * and may have children that are also Entities
  * @param fn
- * @param param1
+ * @param opt  { components, children }
  * @returns
  */
 export function Entity(fn, { components, children, } = { components: [], children: [] }) {
@@ -123,7 +125,7 @@ export function Entity(fn, { components, children, } = { components: [], childre
             }
         }
         if (module.hot) {
-            el.__hot__data__ = { fn, components, children }; // TODO: arguments is not working here
+            el.__hot__data__ = { fn, components, children }; // TODO(QL): arguments is not working here
         }
         return el;
     };

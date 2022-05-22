@@ -3,7 +3,8 @@
  * @author Quang-Linh LE
  */
 // Physics
-import * as BABYLON from 'babylonjs';
+import * as BABYLON from "babylonjs";
+import { Entity } from "./core";
 /**
  * Compnent: Enable physics for `scene'
  * @param scene
@@ -113,27 +114,35 @@ export async function withHandTracking(xrHelper, setElForId, leftHandId = "leftH
     const featuresManager = xrHelper.baseExperience.featuresManager;
     const availableFeatures = BABYLON.WebXRFeaturesManager.GetAvailableFeatures();
     if (availableFeatures.find((it) => it === BABYLON.WebXRFeatureName.HAND_TRACKING)) {
-        const xrHandFeature = featuresManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
-            xrInput: xrHelper.input,
-        });
-        xrHandFeature.onHandAddedObservable.add((hand) => {
-            console.log("HAND ADDED", hand);
-            if (hand.xrController.inputSource.handedness === "left") {
-                setElForId(hand, leftHandId);
-            }
-            if (hand.xrController.inputSource.handedness === "right") {
-                setElForId(hand, rightHandId);
-            }
-        });
-        xrHandFeature.onHandRemovedObservable.add((hand) => {
-            console.log("HAND REMOVED", hand);
-            if (hand.xrController.inputSource.handedness === "left") {
-                setElForId(undefined, leftHandId);
-            }
-            if (hand.xrController.inputSource.handedness === "right") {
-                setElForId(undefined, rightHandId);
-            }
-        });
+        try {
+            const xrHandFeature = featuresManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
+                xrInput: xrHelper.input,
+                jointMeshes: {
+                    enablePhysics: true,
+                },
+            });
+            xrHandFeature.onHandAddedObservable.add((hand) => {
+                console.log("HAND ADDED", hand);
+                if (hand.xrController.inputSource.handedness === "left") {
+                    setElForId(hand, leftHandId);
+                }
+                if (hand.xrController.inputSource.handedness === "right") {
+                    setElForId(hand, rightHandId);
+                }
+            });
+            xrHandFeature.onHandRemovedObservable.add((hand) => {
+                console.log("HAND REMOVED", hand);
+                if (hand.xrController.inputSource.handedness === "left") {
+                    setElForId(undefined, leftHandId);
+                }
+                if (hand.xrController.inputSource.handedness === "right") {
+                    setElForId(undefined, rightHandId);
+                }
+            });
+        }
+        catch (e) {
+            console.log("withHandTracking", "Unable to enable hand tracking");
+        }
     }
 }
 // Pick
@@ -180,5 +189,31 @@ export async function onPickedUp(el, findElById, cb) {
                 break;
         }
     });
+}
+/**
+ * Create accept handler that replaces current entity with a new `fn`, while preseve the `components` and `children`
+ * @param el
+ * @returns
+ */
+export function hotReplace(el, newElFn) {
+    return () => {
+        let scene;
+        if (el instanceof BABYLON.WebXRDefaultExperience) {
+            scene = el.baseExperience.camera.getScene();
+        }
+        else {
+            scene = el.getScene();
+        }
+        const parent = el.parent;
+        const { fn: _, components, children } = el.__hot__data__;
+        el.dispose();
+        (async () => {
+            const newEl = await Entity(newElFn, {
+                components,
+                children,
+            })(scene);
+            newEl.parent = parent;
+        })();
+    };
 }
 //# sourceMappingURL=stdlib.js.map

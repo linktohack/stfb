@@ -7,14 +7,18 @@
  *   enhances, modifies its behavior in some ways
  * Entity: Node, Mesh, Feature etc..
  */
-import * as BABYLON from 'babylonjs';
+import * as BABYLON from "babylonjs";
+export declare type IEntity = BABYLON.Node | BABYLON.Camera | BABYLON.WebXRDefaultExperience;
 /**
  * Bootstrap a new system with a `registry'
  *
  * @param registry global state
- * @returns [setElForId, findElById]
+ * @param opt optional { noUniqueCheck: false }
+ * @returns { setElForId, findElById }
  */
-export declare function System(registry: any): {
+export declare function System(registry: any, opt?: {
+    noUniqueCheck: boolean;
+}): {
     setElForId(el: any, id: any): void;
     findElById(id: any): any;
 };
@@ -24,9 +28,9 @@ export declare function System(registry: any): {
  * @param param1
  * @returns
  */
-export declare function Scene<T extends BABYLON.Node>(sceneOrCanvas: BABYLON.Scene | HTMLCanvasElement | null, { components, children, }: {
+export declare function Scene(sceneOrCanvas: BABYLON.Scene | HTMLCanvasElement | null, { components, children, }: {
     components?: (((scene: BABYLON.Scene) => void | Promise<void>) | ((scene: BABYLON.Scene, ...args: any[]) => void | Promise<void>) | [Function, ...any])[];
-    children?: ((scene: BABYLON.Scene) => Promise<T>)[];
+    children?: ((scene: BABYLON.Scene) => Promise<IEntity>)[];
 }): Promise<BABYLON.Scene>;
 /**
  * Entity is basically a Mesh or a Feature that its behavior can be modified by some functions (Components)
@@ -35,12 +39,12 @@ export declare function Scene<T extends BABYLON.Node>(sceneOrCanvas: BABYLON.Sce
  * @param param1
  * @returns
  */
-export declare function Entity<T>(fn: (scene: BABYLON.Scene) => T | Promise<T>, { components, children, }?: {
-    components?: (((el: T) => void | Promise<void>) | ((el: T, ...args: any[]) => void | Promise<void>) | [(el: T, ...args: any[]) => void | Promise<void>, ...any])[];
-    children?: ((scene: BABYLON.Scene) => Promise<T & {
+export declare function Entity(fn: (scene: BABYLON.Scene) => IEntity | Promise<IEntity>, { components, children, }?: {
+    components?: (((el: IEntity) => void | Promise<void>) | ((el: IEntity, ...args: any[]) => void | Promise<void>) | [(el: IEntity, ...args: any[]) => void | Promise<void>, ...any])[];
+    children?: ((scene: BABYLON.Scene) => Promise<IEntity & {
         parent: any;
     }>)[];
-}): (scene: BABYLON.Scene) => Promise<T>;
+}): (scene: BABYLON.Scene) => Promise<IEntity>;
 /**
  * Create a default Light for `scene` (if not exist)
  *

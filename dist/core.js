@@ -7,18 +7,25 @@
  *   enhances, modifies its behavior in some ways
  * Entity: Node, Mesh, Feature etc..
  */
-import * as BABYLON from 'babylonjs';
+import * as BABYLON from "babylonjs";
 /**
  * Bootstrap a new system with a `registry'
  *
  * @param registry global state
- * @returns [setElForId, findElById]
+ * @param opt optional { noUniqueCheck: false }
+ * @returns { setElForId, findElById }
  */
-export function System(registry) {
+export function System(registry, opt) {
+    const noUniqueCheck = opt?.noUniqueCheck ?? false;
     return {
         setElForId(el, id) {
             if (registry[id] && registry[id] !== el) {
-                throw new Error(`Id \`${id}' is already reserved for \'${registry[id]}'`);
+                if (noUniqueCheck) {
+                    registry[id] = el;
+                }
+                else {
+                    throw new Error(`Id \`${id}' is already reserved for \'${registry[id]}'`);
+                }
             }
             else if (el === undefined) {
                 delete registry[id];
@@ -114,6 +121,9 @@ export function Entity(fn, { components, children, } = { components: [], childre
             else {
                 childEl.parent = el;
             }
+        }
+        if (module.hot) {
+            el.__hot__data__ = { fn, components, children }; // TODO: arguments is not working here
         }
         return el;
     };

@@ -8,21 +8,32 @@
  * Entity: Node, Mesh, Feature etc..
  */
 
-import * as BABYLON from 'babylonjs';
+import * as BABYLON from "babylonjs";
+
+export type IEntity =
+  | BABYLON.Node
+  | BABYLON.Camera
+  | BABYLON.WebXRDefaultExperience;
 
 /**
  * Bootstrap a new system with a `registry'
  *
  * @param registry global state
- * @returns [setElForId, findElById]
+ * @param opt optional { noUniqueCheck: false }
+ * @returns { setElForId, findElById }
  */
-export function System(registry) {
+export function System(registry, opt?: { noUniqueCheck: boolean }) {
+  const noUniqueCheck = opt?.noUniqueCheck ?? false;
   return {
     setElForId(el, id) {
       if (registry[id] && registry[id] !== el) {
-        throw new Error(
-          `Id \`${id}' is already reserved for \'${registry[id]}'`
-        );
+        if (noUniqueCheck) {
+          registry[id] = el;
+        } else {
+          throw new Error(
+            `Id \`${id}' is already reserved for \'${registry[id]}'`
+          );
+        }
       } else if (el === undefined) {
         delete registry[id];
       } else {
@@ -37,11 +48,11 @@ export function System(registry) {
 
 /**
  * Bootstrap a scene
- * @param sceneOrCanvas 
- * @param param1 
- * @returns 
+ * @param sceneOrCanvas
+ * @param param1
+ * @returns
  */
-export async function Scene<T extends BABYLON.Node>(
+export async function Scene(
   sceneOrCanvas: BABYLON.Scene | HTMLCanvasElement | null,
   {
     components,
@@ -52,7 +63,7 @@ export async function Scene<T extends BABYLON.Node>(
       | ((scene: BABYLON.Scene, ...args) => void | Promise<void>)
       | [Function, ...any]
     )[];
-    children?: ((scene: BABYLON.Scene) => Promise<T>)[];
+    children?: ((scene: BABYLON.Scene) => Promise<IEntity>)[];
   }
 ): Promise<BABYLON.Scene> {
   let canvas: HTMLCanvasElement;
@@ -96,17 +107,17 @@ export async function Scene<T extends BABYLON.Node>(
   );
 
   // Do we need a default light?
-  let light = childEls.find(
+  let light = (childEls.find(
     (el) => el instanceof BABYLON.Light
-  ) as BABYLON.Light;
+  ) as unknown) as BABYLON.Light;
   if (!light) {
     light = CreateDefaultLight(scene);
   }
 
   // Do we need a default camera?
-  let camera = childEls.find(
+  let camera = (childEls.find(
     (el) => el instanceof BABYLON.Camera
-  ) as BABYLON.Camera;
+  ) as unknown) as BABYLON.Camera;
   if (!camera) {
     camera = CreateDefaultCamera(scene);
   }
@@ -119,22 +130,22 @@ export async function Scene<T extends BABYLON.Node>(
 /**
  * Entity is basically a Mesh or a Feature that its behavior can be modified by some functions (Components)
  * and may have children that are also Entities
- * @param fn 
- * @param param1 
- * @returns 
+ * @param fn
+ * @param param1
+ * @returns
  */
-export function Entity<T>(
-  fn: (scene: BABYLON.Scene) => T | Promise<T>,
+export function Entity(
+  fn: (scene: BABYLON.Scene) => IEntity | Promise<IEntity>,
   {
     components,
     children,
   }: {
     components?: (
-      | ((el: T) => void | Promise<void>)
-      | ((el: T, ...args) => void | Promise<void>)
-      | [(el: T, ...args) => void | Promise<void>, ...any]
+      | ((el: IEntity) => void | Promise<void>)
+      | ((el: IEntity, ...args) => void | Promise<void>)
+      | [(el: IEntity, ...args) => void | Promise<void>, ...any]
     )[];
-    children?: ((scene: BABYLON.Scene) => Promise<T & { parent: any }>)[]; // super of T?
+    children?: ((scene: BABYLON.Scene) => Promise<IEntity & { parent: any }>)[]; // super of T?
   } = { components: [], children: [] }
 ) {
   return async (scene: BABYLON.Scene) => {
@@ -158,6 +169,10 @@ export function Entity<T>(
       } else {
         childEl.parent = el;
       }
+    }
+
+    if (module.hot) {
+      (el as any).__hot__data__ = { fn, components, children }; // TODO: arguments is not working here
     }
 
     return el;

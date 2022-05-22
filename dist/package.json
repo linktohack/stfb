@@ -16,6 +16,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^17.0.34",
+    "@types/webpack-env": "^1.17.0",
     "ammojs-typed": "^1.0.6",
     "babylonjs": "^5.6.1",
     "cannon": "^0.6.2",

@@ -2,7 +2,8 @@
  * @packageDocumentation Super Tiny Foundation, stdlib
  * @author Quang-Linh LE
  */
-import * as BABYLON from 'babylonjs';
+import * as BABYLON from "babylonjs";
+import { IEntity } from "./core";
 /**
  * Compnent: Enable physics for `scene'
  * @param scene
@@ -69,3 +70,9 @@ export declare function onPickedDown(el: BABYLON.Mesh, setElForId: Function, cb:
  * @param cb
  */
 export declare function onPickedUp(el: BABYLON.Mesh, findElById: Function, cb: Function): Promise<void>;
+/**
+ * Create accept handler that replaces current entity with a new `fn`, while preseve the `components` and `children`
+ * @param el
+ * @returns
+ */
+export declare function hotReplace(el: IEntity, newElFn: (scene: BABYLON.Scene) => IEntity | Promise<IEntity>): () => void;

@@ -119,6 +119,10 @@ export async function withHandTracking(xrHelper, setElForId, leftHandId = "leftH
                 xrInput: xrHelper.input,
                 jointMeshes: {
                     enablePhysics: true,
+                    physicsProps: {
+                        friction: 0.5,
+                        restitution: 0.3,
+                    },
                 },
             });
             xrHandFeature.onHandAddedObservable.add((hand) => {

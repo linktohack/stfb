@@ -183,6 +183,10 @@ export async function withHandTracking(
           xrInput: xrHelper.input,
           jointMeshes: {
             enablePhysics: true,
+            physicsProps: {
+              friction: 0.5,
+              restitution: 0.3,
+            },
           },
         }
       );

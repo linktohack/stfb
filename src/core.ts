@@ -162,7 +162,9 @@ export function Entity(
       | ((el: IEntity, ...args) => void | Promise<void>)
       | [(el: IEntity, ...args) => void | Promise<void>, ...any]
     )[];
-    children?: ((scene: BABYLON.Scene) => Promise<IEntity & { parent: any }>)[]; // super of T?
+    children?: ((
+      scene: BABYLON.Scene
+    ) => Promise<IEntity> | Promise<IEntity[]>)[];
   } = { components: [], children: [] }
 ) {
   return async (scene: BABYLON.Scene) => {
@@ -181,10 +183,14 @@ export function Entity(
       let childEl = await childFn(scene);
       if (Array.isArray(childEl)) {
         for (const c of childEl) {
-          c.parent = el;
+          if (!(c instanceof BABYLON.WebXRDefaultExperience)) {
+            c.parent = el as any;
+          }
         }
       } else {
-        childEl.parent = el;
+        if (!(childEl instanceof BABYLON.WebXRDefaultExperience)) {
+          childEl.parent = el as any;
+        }
       }
     }
 

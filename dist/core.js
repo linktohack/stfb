@@ -133,11 +133,15 @@ export function Entity(fn, { components, children, } = { components: [], childre
             let childEl = await childFn(scene);
             if (Array.isArray(childEl)) {
                 for (const c of childEl) {
-                    c.parent = el;
+                    if (!(c instanceof BABYLON.WebXRDefaultExperience)) {
+                        c.parent = el;
+                    }
                 }
             }
             else {
-                childEl.parent = el;
+                if (!(childEl instanceof BABYLON.WebXRDefaultExperience)) {
+                    childEl.parent = el;
+                }
             }
         }
         if (module.hot) {

@@ -42,9 +42,7 @@ export declare function Scene(sceneOrCanvas: BABYLON.Scene | HTMLCanvasElement |
  */
 export declare function Entity(fn: (scene: BABYLON.Scene) => IEntity | Promise<IEntity>, { components, children, }?: {
     components?: (((el: IEntity) => void | Promise<void>) | ((el: IEntity, ...args: any[]) => void | Promise<void>) | [(el: IEntity, ...args: any[]) => void | Promise<void>, ...any])[];
-    children?: ((scene: BABYLON.Scene) => Promise<IEntity & {
-        parent: any;
-    }>)[];
+    children?: ((scene: BABYLON.Scene) => Promise<IEntity> | Promise<IEntity[]>)[];
 }): (scene: BABYLON.Scene) => Promise<IEntity>;
 /**
  * Create a default Light for `scene` (if not exist)
